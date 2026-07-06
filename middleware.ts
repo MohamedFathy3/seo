@@ -2,10 +2,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+// ✅ قائمة الـ subdomains للتوجيه
+// المفتاح: الـ subdomain الحالي, القيمة: الـ subdomain المستهدف
+const REDIRECT_MAP: Record<string, string> = {
+  'drahmedhusseinbi': 'drahmedhusseinbio',
+  // يمكنك إضافة المزيد هنا
+  // 'example': 'example-target',
+};
+
+export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
   
-  // ✅ جلب الـ host من الـ headers (هذا هو الـ domain الحقيقي)
+  // ✅ جلب الـ host من الـ headers
   const host = request.headers.get('host') || '';
   const cleanHost = host.split(':')[0].trim().toLowerCase();
   
@@ -53,7 +61,25 @@ export function middleware(request: NextRequest) {
     
     console.log(`🔍 Subdomain detected: ${subdomain}`);
     
-    // ✅ حفظ الـ host الكامل في headers
+    // ✅ ✅ ✅ التحقق من الـ Redirect Map
+    if (REDIRECT_MAP[subdomain]) {
+      const targetSubdomain = REDIRECT_MAP[subdomain];
+      const targetHost = cleanHost.replace(subdomain, targetSubdomain);
+      
+      console.log(`🔄 Redirecting from ${subdomain} to ${targetSubdomain}`);
+      
+      // ✅ بناء URL الجديد
+      const newUrl = new URL(url);
+      newUrl.host = targetHost;
+      newUrl.hostname = targetHost;
+      
+      console.log(`🔄 Redirecting to: ${newUrl.toString()}`);
+      
+      // ✅ إعادة توجيه دائمة (301 Moved Permanently)
+      return NextResponse.redirect(newUrl, 301);
+    }
+    
+    // ✅ حفظ الـ host الكامل في headers (للمسارات العادية)
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-full-host', host);
     requestHeaders.set('x-subdomain', subdomain);

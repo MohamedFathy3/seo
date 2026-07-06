@@ -64,9 +64,7 @@ export default function RootLayout({
       <body>
         {/* ✅ إضافة TeacherProvider و Providers */}
         <Providers>
-          <TeacherProvider>
             {children}
-          </TeacherProvider>
         </Providers>
       </body>
     </html>
