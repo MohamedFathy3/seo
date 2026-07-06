@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname mrmahmoudade.web-lec.com --port 3000",
+    "dev": "next dev --hostname Mrmahmoudade.web-lec.com --port 3000",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

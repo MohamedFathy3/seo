@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
 
-const API_BASE_URL = "https://web-lec.com/api/";
+const API_BASE_URL = "/api/proxy";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
