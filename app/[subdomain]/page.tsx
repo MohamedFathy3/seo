@@ -2,13 +2,24 @@
 // app/[subdomain]/page.tsx
 'use client';
 
-import { useTeacher } from '@/context/TeacherContext';
+import { useSafeTeacher } from '@/context/TeacherContext';
 import { useState } from 'react';
-import Image from 'next/image';
 
 export default function SubdomainPage() {
-  const { seo, teacher, host, home, stages, courses, features } = useTeacher();
+  const { seo, teacher, host, home, stages, courses, features } = useSafeTeacher();
   const [activeTab, setActiveTab] = useState('seo');
+
+  // ✅ التحقق من وجود البيانات (لتفادي مشكلة Prerendering)
+  if (!teacher) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
 
   // ✅ دالة لعرض القيم بشكل جميل
   const renderValue = (value: any) => {

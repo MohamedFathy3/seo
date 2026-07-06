@@ -5,7 +5,6 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import api from "@/lib/api";
 import Loading from '@/components/Landing';
 import { fetchTeacherByHost, TeacherWebsiteData, SeoSettings } from '@/lib/teacher-data';
 
@@ -49,6 +48,29 @@ interface TeacherProviderProps {
   bgColor?: string;
   textColor?: string;
 }
+
+// ✅ القيم الافتراضية للـ Context
+const DEFAULT_VALUE: TeacherContextValue = {
+  teacher: null,
+  subdomain: "",
+  host: "",
+  isLoading: false,
+  error: null,
+  refetch: () => {},
+  pick: (en?: string, ar?: string) => en || ar || "",
+  stages: [],
+  courses: [],
+  books: [],
+  features: [],
+  about: null,
+  footer: null,
+  future: [],
+  home: null,
+  centerHours: [],
+  featured_courses: [],
+  initialDataLoaded: false,
+  seo: null,
+};
 
 export const TeacherProvider = ({ 
   children, 
@@ -112,12 +134,10 @@ export const TeacherProvider = ({
     const teacherData = teacher || initialData;
     if (!teacherData) return null;
     
-    // ✅ الأولوية: الـ SEO من الـ website.seo
     if (teacherData.website?.seo) {
       return teacherData.website.seo;
     }
     
-    // ✅ ثانياً: الـ SEO من الـ about.seo_setting
     if (teacherData.website?.about?.seo_setting) {
       return teacherData.website.about.seo_setting;
     }
@@ -202,7 +222,7 @@ export const TeacherProvider = ({
 
   useEffect(() => {
     if (isStaticPage) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+      // eslint-disable-next-line react-hooks/set-state-in-effect 
       setIsPageLoading(false);
     }
   }, [isStaticPage]);
@@ -273,30 +293,12 @@ export const useTeacher = () => {
   return context;
 };
 
-export const useSafeTeacher = () => {
-  try {
-    return useTeacher();
-  } catch {
-    return {
-      teacher: null,
-      subdomain: "",
-      host: "",
-      isLoading: false,
-      error: null,
-      refetch: () => { },
-      pick: (en?: string, ar?: string) => en || ar || "",
-      stages: [],
-      courses: [],
-      books: [],
-      features: [],
-      about: null,
-      footer: null,
-      future: [],
-      home: null,
-      centerHours: [],
-      featured_courses: [],
-      initialDataLoaded: false,
-      seo: null,
-    };
+// ✅ ✅ ✅ إصلاح useSafeTeacher - لا تستخدم useTeacher داخلياً
+export const useSafeTeacher = (): TeacherContextValue => {
+  const context = useContext(TeacherContext);
+  if (!context) {
+    // ✅ إرجاع القيم الافتراضية بدلاً من رمي خطأ
+    return DEFAULT_VALUE;
   }
+  return context;
 };
